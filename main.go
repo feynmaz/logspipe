@@ -22,7 +22,6 @@ func ready(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	zerolog.MessageFieldName = "_msg"
 	stream := fmt.Sprintf("app=%s,env=%s", appName, appEnv)
 	logger := zerolog.New(os.Stdout).With().
 		Str("_stream", stream).
