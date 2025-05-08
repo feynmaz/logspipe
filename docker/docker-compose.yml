@@ -2,6 +2,7 @@ name: logspipe
 
 services:
   app:
+    container_name: logspipe
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -27,5 +28,22 @@ services:
         max-file: "3"  # Keep 3 files
     ports:
       - "8088:8088"
-    pull_policy: build
     restart: unless-stopped
+
+  vector:
+    image: timberio/vector:0.46.1-alpine
+    container_name: vector
+    deploy:
+      resources:
+        limits:
+          cpus: '0.2'
+          memory: 100M
+        reservations:
+          cpus: '0.1'
+          memory: 50M
+    volumes:
+      - ./configs/vector.yaml:/etc/vector/vector.yaml
+      - ./data:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - app

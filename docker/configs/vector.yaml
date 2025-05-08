@@ -1,0 +1,31 @@
+data_dir: "/data"
+
+sources:
+  app_logs:
+    type: docker_logs
+    include_containers: ["logspipe"]
+    auto_partial_merge: true
+    
+transforms:
+  parse_logs:
+    type: remap
+    inputs: ["app_logs"]
+    source: |
+      # Docker logs source provides the container output in the "message" field
+      # We need to parse this JSON string into structured data
+      . = parse_json!(.message)
+
+sinks:
+  console:
+    type: console
+    inputs: ["parse_logs"]
+    encoding:
+      codec: json
+    
+  file_sink:
+    type: file
+    inputs: ["parse_logs"]
+    path: "/data/app_logs.json"
+    encoding:
+      codec: json
+    compression: none
